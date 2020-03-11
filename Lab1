@@ -1,7 +1,56 @@
-async function startProgram() {
-    await speak("Hello World", true);
-    setMainLed({ r: 0, g: 0, b: 255});
-    setSpeed(60);
-    await delay (2);
-    setSpeed(0);
+/*
+	programmers: Jake Allen & Jasek Zielaskowski
+	date: 3-10-20
+	description: This is a sandbox that we use to try out different programs on the sphero bolt. 
+	Currently it holds the necessary code to make the sphero go in a figure 8.
+*/
+
+
+
+
+/**
+ * Makes the sphero bolt go in a clockwise loop at 80 speed for 4.5 seconds
+*/
+async function upperLoop(){
+	setSpeed(80);									//sets speed to 80
+	await Sound.RobotTalk.Emergency.play(false);	//Has the sphero say emergency in a robotic voice.
+	await spin(355,4.5);							// sets spin to 355 and has it spin for 4.5 seconds
+	stopRoll();										// stops the sphero bolt
 }
+
+
+/**
+ * Makes the sphero bolt go in a counter-clockwise loop at 80 speed for 4.5 seconds
+*/
+async function lowerLoop(){
+	setSpeed(80);										//sets speed to 80
+	await Sound.RobotTalk.TimeIsRunningOut.play(false); //Has the sphero say time is running out in a robotic voice.
+	await spin(-355,4.5);								// sets spin to -355 and has it spin for 4.5 seconds
+	stopRoll();											// stops the sphero bolt
+}
+
+
+/**
+ * This is the function that is called if the sphero bot detects a collision.
+*/
+async function collision(){
+	stopRoll();											//This stops the sphero from rolling.
+	await Sound.RobotTalk.Malfunction.play(false);		//Has the sphero say malfunction in a robotic voice.
+	await strobe(getRandomColor(), (3 / 15) * 0.5,2);	//Selects a random color and makes the main LED strobe that color for two seconds.
+	await rawMotor(255, 255, 2);						//Sets the left and right motors to 255 power causing the sphero bolt to jump around for two seconds.
+	
+}
+
+/**
+ * This function checks for a collision
+*/
+registerEvent(EventType.onCollision, collision);
+
+
+/**
+ * Makes the sphero bolt go in a figure 8 pattern over the course of nine seconds at 80 speed
+*/
+async function startProgram() {
+	await upperLoop();	//Calls the upperLoop function
+	await lowerLoop();	//Calls the lowerLoop function
+}	
